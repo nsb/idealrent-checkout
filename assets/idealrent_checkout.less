@@ -1,0 +1,736 @@
+@mobile: ~"only screen and (max-width: 479px)";
+@notmobile: ~"only screen and (min-width: 480px)";
+@tablet: ~"only screen and (min-width: 768px) and (max-width: 959px)";
+@desktop: ~"only screen and (min-width: 960px)";
+
+@blue: #3d77ea;
+@lgrey: #ddd;
+@lblue: #63ead3;
+
+body.checkoutfull .ui-state-active, body .ui-widget-content .ui-state-active {
+  border: 1px solid @blue;
+  background-color: @blue;
+  background-image: none;
+}
+
+@keyframes idealrent_price_bubble {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(2);
+  }
+}
+
+.idealrent_checkout_overlay {
+  position: fixed;
+  background-color: rgba(100, 100, 100, .6);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+}
+
+.idealrent_checkout_zip_error {
+  position: fixed;
+  background-color: white;
+  padding: 15px;
+  width: 200px;
+  z-index: 1200;
+  top: 125px;
+  left: 50%;
+  margin-left: -115px;
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, .4);
+  div {
+    font-size: 18px;
+    color: #333;
+  }
+  button {
+    margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #3d77ea;
+    -webkit-appearance: none;
+    color: white;
+    padding: 10px 30px;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease-in-out;
+  }
+}
+
+.idealrent_checkout_form {
+
+  .idealrent_price_bubble {
+    border-radius: 100%;
+    display: none;
+    background-color: rgba(140, 150, 220, .5);
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    &.active {
+      display: block;
+      animation: idealrent_price_bubble .325s linear;
+    }
+  }
+
+  .priceextra {
+    position: relative;
+    display: block;
+    &.hasprice > span, &.hasdiscount > span {
+      display: block;
+      position: relative;
+      top: -5px;
+      &.hourprice, &.discountspan, &.dateprice, &.pricespan {
+        position: absolute;
+        bottom: 9px;
+        @media @mobile {
+          bottom: 3px;
+        }
+        font-size: 11px;
+        left: 0;
+        right: 0;
+        top: auto;
+        text-align: center;
+      }
+    }
+  }
+
+  .StripeElement {
+    background-color: white;
+    padding: 10px 12px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 3px 0 #e6ebf1;
+    -webkit-transition: box-shadow 150ms ease;
+    transition: box-shadow 150ms ease;
+  }
+
+  .StripeElement--focus {
+    box-shadow: 0 1px 3px 0 #cfd7df;
+  }
+
+  .StripeElement--invalid {
+    border-color: #fa755a;
+  }
+
+  .StripeElement--webkit-autofill {
+    background-color: #fefde5 !important;
+  }
+
+  .payblock {
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 2px;
+    #card-errors {
+      margin-top: 4px;
+    }
+    label {
+      margin-top: 25px;
+      &:first-child {
+        margin-top: 0;
+      }
+      margin-bottom: 8px;
+      display: block;
+      color: #353535;
+      font-weight: bold;
+    }
+    input[type=text], input[type=email] {
+      width: 100%;
+      border: 0;
+      padding: 10px 12px;
+      border-radius: 4px;
+      box-sizing: border-box;
+      box-shadow: 0 1px 3px 0 #e6ebf1;
+      -webkit-transition: box-shadow 150ms ease;
+      transition: box-shadow 150ms ease;
+      color: #32325d;
+      line-height: 18px;
+      font-family: "Helvetica Neue", Helvetica, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+      &:focus {
+        box-shadow: 0 1px 3px 0 #cfd7df;
+      }
+      ::-webkit-input-placeholder {
+        color: #aab7c4;
+      }
+    }
+  }
+
+  @media @mobile {
+    padding-top: 84px;
+  }
+
+  #idealrent_checkout_form_progress_price {
+    button {
+      overflow: hidden;
+      position: relative;
+      span {
+        z-index: 1;
+      }
+      label {
+        position: relative;
+        z-index: 2;
+      }
+    }
+  }
+
+  #idealrent_checkout_form_progress_price,
+  #idealrent_checkout_form_progress_logo {
+    flex: 0 0 8%;
+  }
+  #idealrent_checkout_form_progress_size,
+  #idealrent_checkout_form_progress_bathrooms,
+  #idealrent_checkout_form_progress_service {
+    flex: 0 0 12%;
+  }
+  #idealrent_checkout_form_progress_date {
+    flex: 0 0 14%;
+  }
+  #idealrent_checkout_form_progress_hour {
+    flex: 0 0 10%;
+  }
+  #idealrent_checkout_form_progress_address {
+    flex: 1 1 20%;
+  }
+  #idealrent_checkout_form_progress_mobile_drop {
+    display: none;
+  }
+
+  @media @mobile {
+    #idealrent_checkout_form_progress_logo {
+      order: 0;
+      flex: 0 0 28%;
+    }
+    #idealrent_checkout_form_progress_price {
+      order: 1;
+      flex: 0 0 44%;
+    }
+    #idealrent_checkout_form_progress_mobile_drop {
+      display: flex;
+      order: 2;
+      flex: 0 0 28%;
+      flex-flow: column;
+      justify-content: space-around;
+      span {
+        background-color: transparent;
+        font-size: 50px;
+        transform: rotate(90deg);
+        height: 66px;
+        width: 60px;
+        transform-origin: center;
+        border-right: 0 !important;
+        position: relative;
+        left: 50%;
+        margin-left: -30px;
+      }
+      &.rolled span {
+        transform: rotate(-90deg);
+        transition: all .2s ease-in-out;
+      }
+    }
+    #idealrent_checkout_form_progress_size,
+    #idealrent_checkout_form_progress_bathrooms,
+    #idealrent_checkout_form_progress_service {
+      flex: 0 0 33.33%;
+      order: 3;
+    }
+    #idealrent_checkout_form_progress_date,
+    #idealrent_checkout_form_progress_hour {
+      flex: 0 0 50%;
+      order: 4;
+    }
+    #idealrent_checkout_form_progress_address {
+      flex: 0 0 100%;
+      order: 5;
+    }
+  }
+
+  #stripebutton {
+    background-color: @blue;
+    border: 1px solid @blue;
+    color: white;
+    border-radius: 2px;
+    padding: 15px 35px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .stripe-button-el {
+    border: 0;
+    box-shadow: none;
+    background-image: none;
+    border-radius: 2px;
+    background-color: @blue;
+    span {
+      background-color: @blue;
+      border: 1px solid @blue;
+      background-image: none;
+      color: white;
+      box-shadow: none;
+      border-radius: 2px;
+      padding: 10px 20px;
+    }
+  }
+
+  textarea {
+    resize: none;
+    padding: 10px;
+    border-radius: 3px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  @media @mobile {
+    .notmobile {
+      display: none !important;
+    }
+  }
+  @media @notmobile {
+    .mobile {
+      display: none !important;
+    }
+  }
+
+  #idealrent_checkout_form_progress_price label {
+    font-size: 25px;
+    color: @blue;
+  }
+  #idealrent_checkout_address {
+    border-radius: 2px;
+    border: 1px solid grey;
+    padding: 5px 8px;
+    font-size: 20px;
+    @media @mobile {
+      font-size: 15px;
+    }
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .scroller {
+    width: 100%;
+    max-height: 400px;
+    @media @mobile {
+      max-height: 240px;
+    }
+    overflow-y: scroll;
+    overflow-x: hidden;
+    ul {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+      li {
+        &:first-child {
+          margin-top: 0;
+        }
+        &:last-child {
+          margin-bottom: 0;
+        }
+        padding: 0;
+        margin: 4px 0;
+        display: block;
+        label {
+          .priceextra;
+        }
+      }
+    }
+  }
+  .main-carousel {
+    width: 100%;
+    .carousel-cell {
+      width: 100%;
+      h4 {
+        text-align: center;
+        margin-bottom: 20px !important;
+        @media @mobile {
+          margin-bottom: 10px !important;
+        }
+      }
+      .week {
+        display: flex;
+        flex-flow: row;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        &.right {
+          justify-content: flex-end;
+        }
+        > div {
+          flex: 0 0 14.28%;
+          padding: 4px;
+          @media @mobile {
+            padding: 1px 2px;
+          }
+          box-sizing: border-box;
+          label {
+            position: relative;
+            padding: 14px 0 !important;
+            @media @mobile {
+              padding: 7px 0 !important;
+            }
+            display: block;
+            &.greyed {
+              color: #aaa;
+            }
+            .priceextra;
+          }
+        }
+      }
+    }
+    .flickity-page-dots {
+      display: none;
+    }
+    .flickity-prev-next-button {
+      top: 30px;
+      @media @mobile {
+        transform: matrix(1, 0, 0, 1, 0, -22) scale(.7);
+        top: 19px;
+      }
+    }
+  }
+
+  margin: 0;
+  padding: 0;
+  sup {
+    font-size: 10px;
+  }
+  &.fullpage_layout {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    .idealrent_checkout_form_block {
+      display: none;
+      flex: 1 1 auto;
+      &.active {
+        display: flex;
+      }
+      flex-flow: column;
+      justify-content: flex-start;
+      padding-top: 80px;
+      @media @mobile {
+        padding-top: 10px;
+      }
+      .idealrent_checkout_form_section {
+        width: 70%;
+        margin: 0 15%;
+        @media @desktop {
+          &.section_3, &.section_4 {
+            width: 50%;
+            margin: 0 25%;
+          }
+          &.section_5 {
+            width: 30%;
+            margin: 0 35%;
+          }
+        }
+        @media @mobile {
+          width: 96%;
+          margin: 0 2%;
+        }
+        .idealrent_checkout_form_element {
+          display: flex;
+          padding: 15px 0;
+          @media @mobile {
+            padding: 10px 0;
+          }
+          flex-wrap: nowrap;
+          flex-flow: row;
+          label {
+            .priceextra;
+            input {
+              display: none;
+            }
+            border-radius: 2px;
+            text-align: center;
+            font-weight: bold;
+            font-size: .9em;
+            cursor: pointer;
+            margin: 0 1%;
+            &:first-child {
+              margin-left: 0;
+            }
+            &:last-child {
+              margin-right: 0;
+            }
+            flex: 1 1 0;
+            padding: 20px 0;
+            @media @mobile {
+              padding: 12px 3px;
+            }
+            border: 1px solid @lgrey;
+            &:hover {
+              border: 1px solid @blue;
+            }
+            &.active {
+              background-color: @blue;
+              cursor: default;
+              border: 1px solid @blue;
+              color: white;
+            }
+            &.checker.active {
+              cursor: pointer;
+            }
+          }
+          & .header label {
+            cursor: default;
+            &:hover {
+              border: 1px solid @lgrey;
+            }
+          }
+        }
+        button.continue {
+          background-color: #3d77ea;
+          -webkit-appearance: none;
+          color: white;
+          padding: 20px 30px;
+          border: none;
+          font-size: 16px;
+          font-weight: bold;
+          cursor: pointer;
+          border-radius: 2px;
+          transition: all 0.2s ease-in-out;
+          display: none;
+          &.active {
+            display: block;
+          }
+          &.finish {
+            display: block;
+            width: 100%;
+            background-color: #63ead3;
+            margin-top: 20px;
+          }
+          &:hover {
+            box-shadow: 0 0 4px 1px lighten(@blue, 5%);
+          }
+        }
+      }
+      h2 {
+        text-align: center;
+        @media @mobile {
+          font-size: 1.05em;
+          margin: 10px;
+        }
+      }
+      h4 {
+        color: #444;
+        margin-bottom: 0;
+        @media @mobile {
+          margin-top: 10px;
+        }
+      }
+    }
+    .idealrent_checkout_form_progress {
+      flex: 0 0 auto;
+      background-color: #f2f2f2;
+      display: flex;
+      flex-wrap: nowrap;
+      @media @mobile {
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        height: 84px;
+        overflow: hidden;
+        box-shadow: 0 0 16px 2px rgba(0,0,0,0.75);
+        flex-wrap: wrap;
+        > div {
+          display: none;
+          &.complete, &.active {
+            display: block;
+          }
+        }
+      }
+      text-align: center;
+      border-bottom: 1px solid @lgrey;
+      > div {
+        height: 80px;
+        border-top: 4px solid transparent;
+        opacity: 0;
+        &.complete {
+          opacity: 1;
+          border-top: 4px solid @blue;
+          button {
+            cursor: pointer;
+            label {
+              cursor: pointer;
+            }
+          }
+        }
+        &.active, &.complete.active {
+          opacity: 1;
+          border-top: 4px solid @lblue;
+          button {
+            cursor: pointer;
+            label {
+              cursor: pointer;
+            }
+          }
+        }
+        &#idealrent_checkout_form_progress_price.active {
+          border-top: 4px solid #ddd;
+          button {
+            background-color: #e6e6e6;
+            cursor: default;
+            label {
+              cursor: default;
+            }
+          }
+        }
+        &:first-child > * {
+          border-left: 1px solid @lgrey;
+        }
+        > * {
+          border-left: none;
+          border-right: 1px solid @lgrey;
+          border-bottom: none;
+          border-top: none;
+          background-color: white;
+          transition: all .2s ease-in-out;
+        }
+        &:hover > * {
+          background-color: #e6e6e6;
+        }
+        a {
+          text-decoration: none;
+          color: black;
+          height: 100%;
+          display: flex;
+          flex-flow: column;
+          justify-content: space-around;
+        }
+        button {
+          align-items: center;
+          display: flex;
+          flex-flow: column;
+          -webkit-appearance: none;
+          justify-content: space-around;
+          height: 100%;
+          width: 100%;
+          .value {
+            cursor: pointer;
+            display: inline-block;
+            padding-top: 10px;
+            font-size: 1.4em;
+            font-weight: bold;
+            &.address {
+              max-width: 90%;
+              text-overflow: ellipsis;
+              overflow: hidden;
+            }
+          }
+          .label {
+            cursor: default;
+            color: #999;
+            font-size: .8em;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+          }
+        }
+      }
+    }
+  }
+
+  &.frontpage_layout {
+    .idealrent_checkout_form_section {
+      display: flex;
+      flex-wrap: nowrap;
+      &.section_1 .idealrent_checkout_form_element {
+        flex: 0 0 25%;
+      }
+      @media @mobile {
+        & {
+          flex-wrap: wrap;
+          &.section_1 .idealrent_checkout_form_element {
+            flex: 0 0 50%;
+          }
+          &.section_1 .idealrent_checkout_form_element:last-child {
+            margin-top: 20px;
+            flex: 0 0 100%;
+          }
+          &.section_1 .idealrent_checkout_form_element:first-child + div + div {
+            display: none;
+          }
+        }
+      }
+      .idealrent_checkout_form_element {
+        position: relative;
+      }
+      button {
+        cursor: pointer;
+        width: 100%;
+        background-color: white;
+        border: 1px solid @lgrey;
+        padding: 15px;
+        text-align: left;
+        height: 50px;
+        font-size: 15px;
+        &.blue {
+          background-color: @blue;
+          color: white;
+          text-align: center;
+        }
+      }
+      .idealrent_checkout_form_dropdown {
+        position: relative;
+        z-index: 2;
+        &::after {
+          color: #777;
+          content: "❮";
+          transform: rotate(-90deg);
+          right: 15px;
+          position: absolute;
+          transition: all .2s;
+        }
+        + div {
+          visibility: hidden;
+          opacity: 0;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          transform: translateY(-2em);
+          z-index: -1;
+          transition: all 0.3s ease-in-out 0s;
+          @media @mobile {
+            & {
+              transition: all 0.3s ease-in-out 0s, z-index 0s;
+            }
+          }
+          label {
+            font-size: 15px;
+            display: block;
+            cursor: pointer;
+            padding: 15px;
+            background-color: white;
+            border-left: 1px solid @lgrey;
+            border-right: 1px solid @lgrey;
+            border-bottom: 1px solid #f2f2f2;
+            &:last-child {
+              border-bottom: 1px solid @lgrey;
+            }
+          }
+          input[type=radio] {
+            display: none;
+          }
+        }
+        &.active {
+          &::after {
+            transform: rotate(90deg);
+          }
+          + div {
+            visibility: visible;
+            opacity: 1;
+            z-index: 1;
+            transform: translateY(0%);
+          }
+        }
+      }
+    }
+  }
+}
