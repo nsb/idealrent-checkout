@@ -3,7 +3,7 @@
  * Plugin Name: IdealRent Checkout
  * Description: IdealRent Responsive Checkout Form
  * Author: Redcape IVS
- * Version: 1.0
+ * Version: 1.1
  */
 
 if (!defined("ABSPATH")) {
@@ -13,11 +13,24 @@ if (!defined("ABSPATH")) {
 class IdealRentCheckout {
   function __construct() {
     add_action("widgets_init", array($this, "widgets_init"));
+    add_action("template_include", array($this, "template_include"));
 
     if (is_admin()) {
       add_action("admin_menu", array($this, "admin_menu"));
       add_action("admin_init", array($this, "admin_init"));
     }
+  }
+
+  public function template_include($template) {
+    global $post;
+    if ($post) {
+      $url = trim(trim(wp_make_link_relative(get_permalink($post))), "/");
+      $booking = trim(trim(get_option("ir-checkout-stripe-booking-form-page")), "/");
+      if ($url == $booking && !empty($booking)) {
+        $template = dirname(__FILE__)."/templates/ir-checkout-fullpage.php";
+      }
+    }
+    return $template;
   }
 
   public function admin_menu() {
@@ -34,6 +47,7 @@ class IdealRentCheckout {
     register_setting("ir-checkout-settings", "ir-checkout-stripe-key");
     register_setting("ir-checkout-settings", "ir-checkout-stripe-mail");
     register_setting("ir-checkout-settings", "ir-checkout-stripe-booking-page");
+    register_setting("ir-checkout-settings", "ir-checkout-stripe-booking-form-page");
 
     add_settings_field("ir-checkout-base-price", "Angiv basis pris", array($this, "settings_base_price"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-plus-price", "Hovedrengøring pris", array($this, "settings_plus_price"), "ir-checkout-settings", "ir-checkout-settings-section");
@@ -41,7 +55,8 @@ class IdealRentCheckout {
     add_settings_field("ir-checkout-short-term-price", "Kort varsel pris", array($this, "settings_short_term_price"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-stripe-key", "Stripe key", array($this, "settings_stripe_key"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-stripe-mail", "Mailboks", array($this, "settings_stripe_mail"), "ir-checkout-settings", "ir-checkout-settings-section");
-    add_settings_field("ir-checkout-stripe-booking-page", "Booking side", array($this, "settings_stripe_booking_page"), "ir-checkout-settings", "ir-checkout-settings-section");
+    add_settings_field("ir-checkout-stripe-booking-page", "Bekræftelsesside", array($this, "settings_stripe_booking_page"), "ir-checkout-settings", "ir-checkout-settings-section");
+    add_settings_field("ir-checkout-stripe-booking-form-page", "Bookingside", array($this, "settings_stripe_booking_form_page"), "ir-checkout-settings", "ir-checkout-settings-section");
 
     add_settings_section("ir-checkout-settings-section-frequency", "Aftale rabatter (i procent)", array($this, "settings_section"), "ir-checkout-settings");
 
@@ -320,6 +335,11 @@ class IdealRentCheckout {
   public function settings_stripe_booking_page($args) {
     $val = get_option("ir-checkout-stripe-booking-page");
     echo "<input value='{$val}' type='text' name='ir-checkout-stripe-booking-page' id='ir-checkout-stripe-booking-page' />";
+  }
+
+  public function settings_stripe_booking_form_page($args) {
+    $val = get_option("ir-checkout-stripe-booking-form-page");
+    echo "<input value='{$val}' type='text' name='ir-checkout-stripe-booking-form-page' id='ir-checkout-stripe-booking-form-page' />";
   }
 
   public function options_page() {

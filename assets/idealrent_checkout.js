@@ -170,6 +170,11 @@
 
     $("#idealrent_checkout_address").focus(function() {
       $(this).select();
+    }).keydown(function(ev) {
+      if (ev.which == 13) {
+        ev.preventDefault();
+        return false;
+      }
     });
 
     $("#idealrent_checkout_address").dawaautocomplete({
@@ -182,12 +187,14 @@
           }
         } else {
           $("body").append("<div class='idealrent_checkout_overlay'></div>");
-          $("body").append("<div class='idealrent_checkout_zip_error'><div>Vi kan desværre kun service området omkring København</div><button>OK</button></div>");
+          $("body").append("<div class='idealrent_checkout_zip_error'><div>Vi kan desværre kun servicere området omkring København</div><button>OK</button></div>");
+          $(".idealrent_checkout_zip_error button").focus();
           $("#idealrent_checkout_address").val("");
           $("#idealrent_checkout_address_complete").val("");
           $(".idealrent_checkout_form_progress button[data-section=4] .value").html("");
           $(this).closest(".idealrent_checkout_form_section").find(".continue").removeClass("active");
           $(".idealrent_checkout_zip_error button").click(function() {
+            $("#idealrent_checkout_address").focus();
             $(".idealrent_checkout_overlay, .idealrent_checkout_zip_error").remove();
           });
         }

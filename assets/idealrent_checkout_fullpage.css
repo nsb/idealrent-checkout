@@ -1,0 +1,41 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.home main {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background-color: #f2e8d8;
+  flex-flow: column;
+}
+
+.home main.frontpage > div {
+  margin: 0 300px;
+  background-color: white;
+}
+
+@media only screen and (max-width: 479px) {
+  .home main.frontpage > div {
+    margin: 0 10px;
+    background-color: transparent;
+  }
+}
+
+.home main.fullpage > div {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  background-color: white;
+}
+
+form {
+  margin-bottom: 0;
+}
+
+* {
+  font-family: Helvetica, sans-serif;
+}
+

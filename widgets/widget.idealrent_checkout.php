@@ -12,9 +12,12 @@ class IdealRentCheckoutWidget extends WP_Widget {
   public function widget($args, $instance) {
     IdealRentCheckout::enqueue_scripts();
 
-    $action = trim($instance["action"]);
-    if (!empty($action) && $action != "/") {
-      $action = "/".trim($instance["action"], "/")."/";
+    $action = get_option("ir-checkout-stripe-booking-form-page", "");
+    if (empty($action)) {
+      $action = trim(trim($instance["action"]), "/");
+    }
+    if (!empty($action)) {
+      $action = "/{$action}";
     }
     if ($instance["layout"] == 0) {
       $this->layout_frontpage($action);
@@ -294,7 +297,7 @@ class IdealRentCheckoutWidget extends WP_Widget {
     ?>
     <div class="idealrent_checkout_form_progress">
       <div class="complete" id="idealrent_checkout_form_progress_logo">
-        <a href="/"><span>IdealRent</span></a>
+        <a href="/" rel="home"><span>IdealRent</span></a>
       </div>
       <div class="complete" id="idealrent_checkout_form_progress_size">
         <?php $price += $this->sizes("progress"); ?>
