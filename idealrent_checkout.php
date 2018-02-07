@@ -14,11 +14,42 @@ class IdealRentCheckout {
   function __construct() {
     add_action("widgets_init", array($this, "widgets_init"));
     add_action("template_include", array($this, "template_include"));
+    add_shortcode("widget", array($this, "widget"));
+    add_shortcode("sidebar", array($this, "sidebar"));
 
     if (is_admin()) {
       add_action("admin_menu", array($this, "admin_menu"));
       add_action("admin_init", array($this, "admin_init"));
     }
+  }
+
+  public function sidebar($args) {
+    ob_start();
+    dynamic_sidebar($args["name"]);
+    return ob_get_clean();
+  }
+
+  public function widget($args) {
+    global $wp_widget_factory;
+
+    if (!is_a($wp_widget_factory->widgets[$args["name"]], "WP_Widget")) return false;
+    if (isset($args["cap"]) && $args["cap"] == "anonymous" && is_user_logged_in()) return false;
+    if (isset($args["cap"]) && $args["cap"] != "anonymous" && !current_user_can($args["cap"])) return false;
+
+    $args += array(
+      "widget_id" => "arbitrary-instance-widget",
+      "before_widget" => "",
+      "after_widget" => "",
+      "before_title" => "",
+      "after_title" => ""
+    );
+
+    ob_start();
+    the_widget($args["name"], array(), $args);
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    return $output;
   }
 
   public function template_include($template) {
@@ -45,6 +76,7 @@ class IdealRentCheckout {
     register_setting("ir-checkout-settings", "ir-checkout-short-term-days");
     register_setting("ir-checkout-settings", "ir-checkout-short-term-price");
     register_setting("ir-checkout-settings", "ir-checkout-stripe-key");
+    register_setting("ir-checkout-settings", "ir-checkout-stripe-secret-key");
     register_setting("ir-checkout-settings", "ir-checkout-stripe-mail");
     register_setting("ir-checkout-settings", "ir-checkout-stripe-booking-page");
     register_setting("ir-checkout-settings", "ir-checkout-stripe-booking-form-page");
@@ -54,6 +86,7 @@ class IdealRentCheckout {
     add_settings_field("ir-checkout-short-term-days", "Kort varsel grænse (dage)", array($this, "settings_short_term_days"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-short-term-price", "Kort varsel pris", array($this, "settings_short_term_price"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-stripe-key", "Stripe key", array($this, "settings_stripe_key"), "ir-checkout-settings", "ir-checkout-settings-section");
+    add_settings_field("ir-checkout-stripe-secret-key", "Stripe secret key", array($this, "settings_stripe_secret_key"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-stripe-mail", "Mailboks", array($this, "settings_stripe_mail"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-stripe-booking-page", "Bekræftelsesside", array($this, "settings_stripe_booking_page"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-stripe-booking-form-page", "Bookingside", array($this, "settings_stripe_booking_form_page"), "ir-checkout-settings", "ir-checkout-settings-section");
@@ -328,6 +361,10 @@ class IdealRentCheckout {
     $val = get_option("ir-checkout-stripe-key");
     echo "<input value='{$val}' type='text' name='ir-checkout-stripe-key' id='ir-checkout-stripe-key' />";
   }
+  public function settings_stripe_secret_key($args) {
+    $val = get_option("ir-checkout-stripe-secret-key");
+    echo "<input value='{$val}' type='text' name='ir-checkout-stripe-secret-key' id='ir-checkout-stripe-secret-key' />";
+  }
   public function settings_stripe_mail($args) {
     $val = get_option("ir-checkout-stripe-mail");
     echo "<input value='{$val}' type='text' name='ir-checkout-stripe-mail' id='ir-checkout-stripe-mail' />";
@@ -360,8 +397,20 @@ class IdealRentCheckout {
   }
 
   public function widgets_init() {
+    register_sidebar(array(
+      "name" => "Services sidebar",
+      "id" => "Services sidebar",
+      "description" => "Services sidebar",
+      "before_widget" => "<section id='%1\$s' class='widget %2\$s'>",
+      "after_widget" => "</section>",
+      "before_title" => "<h2>",
+      "after_title" => "</h2>",
+    ));
+
     require_once dirname(__FILE__)."/widgets/widget.idealrent_checkout.php";
     register_widget("IdealRentCheckoutWidget");
+    require_once dirname(__FILE__)."/widgets/widget.idealrent_servicelist.php";
+    register_widget("IdealRentServiceListWidget");
   }
 
   public static function enqueue_scripts() {

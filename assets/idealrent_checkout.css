@@ -12,6 +12,59 @@ body .ui-widget-content .ui-state-active {
     transform: scale(2);
   }
 }
+#service_blocks > div {
+  display: none;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+#service_blocks > div.active {
+  display: flex;
+}
+#service_blocks > div > div {
+  flex: 0 0 50%;
+  text-align: left;
+  text-decoration: line-through;
+}
+@media (min-width: 890px) {
+  #service_blocks > div > div {
+    flex: 0 0 33%;
+  }
+}
+@media (max-width: 480px) {
+  #service_blocks > div > div {
+    flex: 0 0 100%;
+  }
+}
+#service_blocks > div > div.provided {
+  text-decoration: none;
+  color: black;
+}
+#service_headers {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+#service_headers h4 {
+  flex: 0 0 auto;
+  margin-right: 20px;
+}
+#service_headers h4 span {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+#service_headers h4.active span {
+  cursor: default;
+  text-decoration: underline;
+  color: black;
+}
+#service_headers h4.active button {
+  visibility: visible;
+}
+#service_headers h4 button {
+  visibility: hidden;
+  margin-top: 10px;
+}
 .idealrent_checkout_overlay {
   position: fixed;
   background-color: rgba(100, 100, 100, 0.6);
@@ -180,10 +233,40 @@ body .ui-widget-content .ui-state-active {
   z-index: 1;
 }
 .idealrent_checkout_form #idealrent_checkout_form_progress_price button label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
   position: relative;
   z-index: 2;
 }
-.idealrent_checkout_form #idealrent_checkout_form_progress_price,
+.idealrent_checkout_form #idealrent_checkout_form_progress_price button label span:nth-child(2n+1) {
+  flex: 0 0 50%;
+  text-align: left;
+}
+.idealrent_checkout_form #idealrent_checkout_form_progress_price button label span:nth-child(2n+2) {
+  flex: 0 0 45%;
+  text-align: right;
+}
+.idealrent_checkout_form #idealrent_checkout_form_progress_price button label span:nth-child(2n+2)::after {
+  content: ",-";
+  display: inline-block;
+}
+.idealrent_checkout_form #idealrent_checkout_form_progress_price button label small {
+  display: inline-block;
+  text-indent: 5px;
+  color: #444;
+  font-size: .5em;
+}
+@media only screen and (max-width: 479px) {
+  .idealrent_checkout_form #idealrent_checkout_form_progress_price button label small {
+    text-indent: 0;
+    position: relative;
+    top: -3px;
+  }
+}
+.idealrent_checkout_form #idealrent_checkout_form_progress_price button label span {
+  line-height: 30px;
+}
 .idealrent_checkout_form #idealrent_checkout_form_progress_logo {
   flex: 0 0 8%;
 }
@@ -195,11 +278,12 @@ body .ui-widget-content .ui-state-active {
 .idealrent_checkout_form #idealrent_checkout_form_progress_date {
   flex: 0 0 14%;
 }
+.idealrent_checkout_form #idealrent_checkout_form_progress_price,
 .idealrent_checkout_form #idealrent_checkout_form_progress_hour {
   flex: 0 0 10%;
 }
 .idealrent_checkout_form #idealrent_checkout_form_progress_address {
-  flex: 1 1 20%;
+  flex: 1 1 18%;
 }
 .idealrent_checkout_form #idealrent_checkout_form_progress_mobile_drop {
   display: none;
@@ -211,12 +295,12 @@ body .ui-widget-content .ui-state-active {
   }
   .idealrent_checkout_form #idealrent_checkout_form_progress_price {
     order: 1;
-    flex: 0 0 44%;
+    flex: 0 0 52%;
   }
   .idealrent_checkout_form #idealrent_checkout_form_progress_mobile_drop {
     display: flex;
     order: 2;
-    flex: 0 0 28%;
+    flex: 0 0 20%;
     flex-flow: column;
     justify-content: space-around;
   }
@@ -296,7 +380,7 @@ body .ui-widget-content .ui-state-active {
   }
 }
 .idealrent_checkout_form #idealrent_checkout_form_progress_price label {
-  font-size: 25px;
+  font-size: 22px;
   color: #3d77ea;
 }
 .idealrent_checkout_form #idealrent_checkout_address {
@@ -526,6 +610,19 @@ body .ui-widget-content .ui-state-active {
     padding: 10px 0;
   }
 }
+@media only screen and (max-width: 479px) {
+  .idealrent_checkout_form.fullpage_layout .idealrent_checkout_form_block .idealrent_checkout_form_section .idealrent_checkout_form_element.idealrent_checkout_form_element_service label {
+    flex: 0 0 47%;
+  }
+}
+@media only screen and (min-width: 480px) {
+  .idealrent_checkout_form.fullpage_layout .idealrent_checkout_form_block .idealrent_checkout_form_section .idealrent_checkout_form_element.idealrent_checkout_form_element_service {
+    justify-content: space-between;
+  }
+  .idealrent_checkout_form.fullpage_layout .idealrent_checkout_form_block .idealrent_checkout_form_section .idealrent_checkout_form_element.idealrent_checkout_form_element_service label {
+    flex: 0 0 49%;
+  }
+}
 .idealrent_checkout_form.fullpage_layout .idealrent_checkout_form_block .idealrent_checkout_form_section .idealrent_checkout_form_element label {
   position: relative;
   display: block;
@@ -535,7 +632,7 @@ body .ui-widget-content .ui-state-active {
   font-size: .9em;
   cursor: pointer;
   margin: 0 1%;
-  flex: 1 1 0;
+  flex: 1 1 auto;
   padding: 20px 0;
   border: 1px solid #ddd;
 }
@@ -805,6 +902,12 @@ body .ui-widget-content .ui-state-active {
 .idealrent_checkout_form.frontpage_layout .idealrent_checkout_form_section .idealrent_checkout_form_dropdown {
   position: relative;
   z-index: 2;
+}
+@media only screen and (max-width: 479px) {
+  .idealrent_checkout_form.frontpage_layout .idealrent_checkout_form_section .idealrent_checkout_form_dropdown {
+    letter-spacing: -0.5px;
+    font-size: 11px;
+  }
 }
 .idealrent_checkout_form.frontpage_layout .idealrent_checkout_form_section .idealrent_checkout_form_dropdown::after {
   color: #777;

@@ -49,35 +49,13 @@
       });
     }
 
-    // Stripe Checkout
-    /*
-    var handler = StripeCheckout.configure({
-      key: IR_Checkout_settings.stripekey,
-      image: "https://stripe.com/img/documentation/checkout/marketplace.png",
-      locale: "auto",
-      token: function(token) {
-        $("#stripe_token").val(token.id);
-        $("#stripe_email").val(token.email);
-        $("form.idealrent_checkout_form").submit();
-      }
+    $("#service_headers h4 span").click(function() {
+      var $target = $($(this).data("target"));
+      $("#service_blocks > div").removeClass("active");
+      $target.addClass("active");
+      $("#service_headers h4").removeClass("active");
+      $(this).parent().addClass("active");
     });
-
-    $("#stripebutton").click(function(ev) {
-      handler.open({
-        name: "Idealrent IVS",
-        description: "Rengøring",
-        zipCode: true,
-        currency: "dkk",
-        amount: $(".priceholder").text()*100
-      });
-      ev.preventDefault();
-    });
-
-    window.addEventListener("popstate", function() {
-      handler.close();
-    });
-    */
-    //End Stripe
 
     $("#idealrent_checkout_form_progress_mobile_drop").click(function() {
       if ($(this).hasClass("rolled")) {
@@ -123,6 +101,7 @@
           price *= (1-$(this).data("discount")/100);
         }
       });
+      var netprice = Math.floor(price*.75);
       price = Math.floor(price);
       if ($(".priceholder").data("checkout-price") != price) {
         $(".priceholder").data("checkout-price", price);
@@ -133,6 +112,7 @@
           $(".idealrent_price_bubble").removeClass("active");
         }, 300);
         $(".priceholder").text(price);
+        $(".netpriceholder").text(netprice);
       }
     });
 

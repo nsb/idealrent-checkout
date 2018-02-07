@@ -158,7 +158,9 @@ class IdealRentCheckoutWidget extends WP_Widget {
           <?php $this->service("frontpage"); ?>
         </div>
         <div class="idealrent_checkout_form_element">
-          <button class="blue">Bestil fra <span data-price="<?php echo get_option("ir-checkout-base-price"); ?>" class="priceholder"><?php echo get_option("ir-checkout-base-price"); ?></span> kr.</button>
+          <button class="blue">
+            Bestil fra <span data-price="<?php echo get_option("ir-checkout-base-price"); ?>" class="priceholder"><?php echo get_option("ir-checkout-base-price"); ?></span> kr.<br/>
+          </button>
         </div>
       </div>
     </form>
@@ -183,11 +185,12 @@ class IdealRentCheckoutWidget extends WP_Widget {
       <div class="idealrent_checkout_form_element" data-element="date">
         <div class="main-carousel">
           <?php
-          $today = date("j");
+          $today = date("m", strtotime("+1 day")) == date("m") ? date("j") : 0;
           $nowstamp = strtotime(date("Y-m-d"));
           for ($i = 0; $i <= 11; $i++):
             $names = array(0, "Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December");
-            $m = date("m", strtotime("+$i month"));
+            $m = (date("m", strtotime("+1 day")) + $i);
+            if ($m > 12) $m -= 12;
             $mname = $names[$m*1];
             $y = date("Y", strtotime("+$i month"));
             $daysinm = cal_days_in_month(CAL_GREGORIAN, $m, $y);
@@ -256,8 +259,10 @@ class IdealRentCheckoutWidget extends WP_Widget {
             <?php
             for($i = 6; $i < 20; $i++) {
               $price = get_option("ir-checkout-{$i}-price", 0);
+              if (!is_numeric($price)) $price = 0;
               $labelclass = $price ? " class='hasprice'" : "";
-              echo "<li><label{$labelclass}><span>{$i}:00</span><span class='hourprice'>+{$price},-</span><input value='{$i}' data-price='{$price}' data-label='{$i}:00' type='radio' name='idealrent_checkout_hour' /></label></li>";
+              $pricetxt = $price ? "+{$price},-" : "";
+              echo "<li><label{$labelclass}><span>{$i}:00</span><span class='hourprice'>{$pricetxt}</span><input value='{$i}' data-price='{$price}' data-label='{$i}:00' type='radio' name='idealrent_checkout_hour' /></label></li>";
             }
             ?>
           </ul>
@@ -320,7 +325,10 @@ class IdealRentCheckoutWidget extends WP_Widget {
       <div class="active" id="idealrent_checkout_form_progress_price">
         <button>
           <span class="idealrent_price_bubble"></span>
-          <label class="value"><span data-checkout-price="<?php echo $base; ?>" data-price="<?php echo $base; ?>" class="priceholder"><?php echo $price; ?></span>,-</label>
+          <label class="value">
+            <span><small>Pris:</small></span><span data-checkout-price="<?php echo $base; ?>" data-price="<?php echo $base; ?>" class="priceholder"><?php echo $price; ?></span>
+            <span><small>Efter fradrag:</small></span><span class="netpriceholder"><?php echo round($price*.75); ?></span>
+          </label>
         </button>
       </div>
       <div class="active" id="idealrent_checkout_form_progress_mobile_drop">
@@ -346,7 +354,7 @@ class IdealRentCheckoutWidget extends WP_Widget {
             <?php $this->bathrooms("full"); ?>
           </div>
           <h4>Service</h4>
-          <div class="idealrent_checkout_form_element" data-element="service">
+          <div class="idealrent_checkout_form_element idealrent_checkout_form_element_service" data-element="service">
             <?php $this->service("full"); ?>
           </div>
           <div class="idealrent_checkout_form_element" style="justify-content: space-around">
@@ -468,6 +476,20 @@ class IdealRentCheckoutWidget extends WP_Widget {
     $name = $_POST["idealrent_checkout_name"];
     $token = $_POST["idealrent_checkout_stripe_token"];
 
+    $ch = curl_init("https://api.stripe.com/v1/customers");
+    $data = "description=Konto for {$mail}&source={$token}";
+    $user = get_option("ir-checkout-stripe-secret-key");
+    curl_setopt($ch, CURLOPT_USERPWD, "{$user}:");
+    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $result = curl_exec($ch);
+
+    $json = json_decode($result);
+    $customerid = $json->id;
+
     switch($_POST["idealrent_checkout_size"]) {
       case 2:
         $size = "70 til 100kvm";
@@ -576,7 +598,9 @@ Navn: {$name}<br/>
 Email: {$mail}<br/>
 Telefon: {$phone}<br/>
 <br/>
-Stripe token: {$token}
+Stripe customer: {$customerid}
+
+{$result}
 </body></html>";
 
     $headers = array(
@@ -660,8 +684,8 @@ Stripe token: {$token}
       </select>
     </p>
     <p>
-    <label for="<?php echo $this->get_field_id("action"); ?>">Form action</label>
-    <input class="widefat" id="<?php echo $this->get_field_id("action"); ?>" name="<?php echo $this->get_field_name("action"); ?>" value="<?php echo $instance["action"]; ?>" />
+      <label for="<?php echo $this->get_field_id("action"); ?>">Form action</label>
+      <input class="widefat" id="<?php echo $this->get_field_id("action"); ?>" name="<?php echo $this->get_field_name("action"); ?>" value="<?php echo $instance["action"]; ?>" />
     </p>
     <?php
   }
