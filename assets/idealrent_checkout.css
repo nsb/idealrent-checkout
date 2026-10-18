@@ -48,6 +48,11 @@ body .ui-widget-content .ui-state-active {
   flex: 0 0 auto;
   margin-right: 20px;
 }
+@media only screen and (max-width: 479px) {
+  #service_headers h4 {
+    font-size: 1rem;
+  }
+}
 #service_headers h4 span {
   color: #bbb;
   text-decoration: none;
@@ -64,6 +69,11 @@ body .ui-widget-content .ui-state-active {
 #service_headers h4 button {
   visibility: hidden;
   margin-top: 10px;
+}
+@media only screen and (max-width: 479px) {
+  #service_headers h4 button {
+    font-size: .6rem;
+  }
 }
 .idealrent_checkout_overlay {
   position: fixed;
@@ -635,6 +645,10 @@ body .ui-widget-content .ui-state-active {
   flex: 1 1 auto;
   padding: 20px 0;
   border: 1px solid #ddd;
+}
+.idealrent_checkout_form.fullpage_layout .idealrent_checkout_form_block .idealrent_checkout_form_section .idealrent_checkout_form_element label.flexible {
+  font-size: 1.05em;
+  text-shadow: 1px 1px #c8c8c8;
 }
 .idealrent_checkout_form.fullpage_layout .idealrent_checkout_form_block .idealrent_checkout_form_section .idealrent_checkout_form_element label.hasprice > span,
 .idealrent_checkout_form.fullpage_layout .idealrent_checkout_form_block .idealrent_checkout_form_section .idealrent_checkout_form_element label.hasdiscount > span {

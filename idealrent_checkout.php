@@ -3,7 +3,7 @@
  * Plugin Name: IdealRent Checkout
  * Description: IdealRent Responsive Checkout Form
  * Author: Redcape IVS
- * Version: 1.1
+ * Version: 1.2.1
  */
 
 if (!defined("ABSPATH")) {
@@ -80,6 +80,7 @@ class IdealRentCheckout {
     register_setting("ir-checkout-settings", "ir-checkout-stripe-mail");
     register_setting("ir-checkout-settings", "ir-checkout-stripe-booking-page");
     register_setting("ir-checkout-settings", "ir-checkout-stripe-booking-form-page");
+    register_setting("ir-checkout-settings", "ir-checkout-flexible-hour-label");
 
     add_settings_field("ir-checkout-base-price", "Angiv basis pris", array($this, "settings_base_price"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-plus-price", "Hovedrengøring pris", array($this, "settings_plus_price"), "ir-checkout-settings", "ir-checkout-settings-section");
@@ -90,6 +91,11 @@ class IdealRentCheckout {
     add_settings_field("ir-checkout-stripe-mail", "Mailboks", array($this, "settings_stripe_mail"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-stripe-booking-page", "Bekræftelsesside", array($this, "settings_stripe_booking_page"), "ir-checkout-settings", "ir-checkout-settings-section");
     add_settings_field("ir-checkout-stripe-booking-form-page", "Bookingside", array($this, "settings_stripe_booking_form_page"), "ir-checkout-settings", "ir-checkout-settings-section");
+    add_settings_field("ir-checkout-flexible-hour-label", "Tekst til \"Fleksibel\" tid", array($this, "settings_stripe_flexible_hour_label"), "ir-checkout-settings", "ir-checkout-settings-section");
+
+    add_settings_section("ir-checkout-settings-section-holidays", "Lukkedage", array($this, "settings_section"), "ir-checkout-settings");
+    register_setting("ir-checkout-settings", "ir-checkout-holidays");
+    add_settings_field("ir-checkout-holidays", "Lukkedage (én dato pr linje, dd/mm/yyyy)", array($this, "settings_holidays"), "ir-checkout-settings", "ir-checkout-settings-section-holidays");
 
     add_settings_section("ir-checkout-settings-section-frequency", "Aftale rabatter (i procent)", array($this, "settings_section"), "ir-checkout-settings");
 
@@ -186,6 +192,11 @@ class IdealRentCheckout {
     add_settings_field("ir-checkout-17-price", "Angiv kl 17 pris", array($this, "settings_17_price"), "ir-checkout-settings", "ir-checkout-settings-section-hours");
     add_settings_field("ir-checkout-18-price", "Angiv kl 18 pris", array($this, "settings_18_price"), "ir-checkout-settings", "ir-checkout-settings-section-hours");
     add_settings_field("ir-checkout-19-price", "Angiv kl 19 pris", array($this, "settings_19_price"), "ir-checkout-settings", "ir-checkout-settings-section-hours");
+  }
+
+  public function settings_holidays($args) {
+    $val = get_option("ir-checkout-holidays");
+    echo "<textarea rows='8' name='ir-checkout-holidays' id='ir-checkout-holidays'>{$val}</textarea>";
   }
 
   public function settings_frequency_weekly($args) {
@@ -379,6 +390,11 @@ class IdealRentCheckout {
     echo "<input value='{$val}' type='text' name='ir-checkout-stripe-booking-form-page' id='ir-checkout-stripe-booking-form-page' />";
   }
 
+  public function settings_stripe_flexible_hour_label($args) {
+    $val = get_option("ir-checkout-flexible-hour-label");
+    echo "<input value='{$val}' type='text' name='ir-checkout-flexible-hour-label' id='ir-checkout-flexible-hour-label' />";
+  }
+
   public function options_page() {
     if (!current_user_can("manage_options")) {
       wp_die(__("You do not have sufficient permissions to access this page."));
@@ -414,15 +430,15 @@ class IdealRentCheckout {
   }
 
   public static function enqueue_scripts() {
-    wp_enqueue_style("idealrent_checkout", plugins_url("assets/idealrent_checkout.css", __FILE__));
+    wp_enqueue_style("idealrent_checkout", plugins_url("assets/idealrent_checkout.css?v1.2", __FILE__));
     wp_enqueue_style("flickity", plugins_url("assets/flickity.css", __FILE__));
     wp_enqueue_style("jqueryui", plugins_url("assets/jquery-ui.css", __FILE__));
 
     wp_enqueue_script("stripe", "https://js.stripe.com/v3/", array("jquery"));
     wp_enqueue_script("flickity", plugins_url("assets/flickity.pkgd.js", __FILE__), array("jquery"));
     wp_enqueue_script("jqueryui", plugins_url("assets/jquery-ui.js", __FILE__), array("jquery"));
-    wp_enqueue_script("dawa", plugins_url("assets/dawa-autocomplete.js", __FILE__), array("jquery", "jqueryui"));
-    wp_register_script("idealrent_checkout", plugins_url("assets/idealrent_checkout.js", __FILE__), array("jquery", "flickity", "dawa", "jqueryui", "stripe"));
+    wp_enqueue_script("dawa", plugins_url("assets/dawa-autocomplete.js", __FILE__), array("jquery", "jqueryui"), "1.2.1");
+    wp_register_script("idealrent_checkout", plugins_url("assets/idealrent_checkout.js", __FILE__), array("jquery", "flickity", "dawa", "jqueryui", "stripe"), "1.2.1");
     $values = array("stripekey" => get_option("ir-checkout-stripe-key"));
     wp_localize_script("idealrent_checkout", "IR_Checkout_settings", $values);
     wp_enqueue_script("idealrent_checkout");

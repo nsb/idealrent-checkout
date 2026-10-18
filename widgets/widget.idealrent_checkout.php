@@ -181,6 +181,13 @@ class IdealRentCheckoutWidget extends WP_Widget {
       7 => get_option("ir-checkout-sunday-price", 0),
     );
 
+    $holidays = array();
+    foreach(explode("\n", get_option("ir-checkout-holidays")) as $line) {
+      if (preg_match("#(\\d{1,2})/(\\d{1,2})/(\\d{2,4})$#", trim($line), $groups)) {
+        $holidays[] = strtotime((strlen($groups[3]) == 2 ? "20" : "")."{$groups[3]}-{$groups[2]}-{$groups[1]}");
+      }
+    }
+
     if ($layout == "full"): ?>
       <div class="idealrent_checkout_form_element" data-element="date">
         <div class="main-carousel">
@@ -213,10 +220,12 @@ class IdealRentCheckoutWidget extends WP_Widget {
                   if (date("N", $stamp) == 1 && $j > 1) {
                     echo "</div><div class='week'>";
                   }
-                  $inactive = ($i == 0 && date("j", $stamp) <= $today) || date("N", $stamp) > 5;
+                  $inactive = ($i == 0 && date("j", $stamp) <= $today) || (date("N", $stamp) > 5) || in_array($stamp, $holidays);
                   $price = 0;
                   if (!$inactive) {
-                    $price += $dayindex[date("N", $stamp)];
+                    if (is_numeric($dayindex[date("N", $stamp)])) {
+                      $price += $dayindex[date("N", $stamp)];
+                    }
                     if ($shortd > 0) $price += $shortp;
                     $shortd--;
                   }
@@ -249,12 +258,13 @@ class IdealRentCheckoutWidget extends WP_Widget {
   }
 
   private function hour($layout) {
+    $flexible = get_option("ir-checkout-flexible-hour-label");
     if ($layout == "full"): ?>
       <div class="idealrent_checkout_form_element" data-element="hour">
         <div class="scroller">
           <ul>
             <li>
-              <label>Fleksibel<input data-label="Fleksibel" type="radio" name="idealrent_checkout_hour" /></label>
+              <label class="flexible"><?php echo $flexible ?: "Fleksibel (mellem 8-16)"; ?><input data-label="Fleksibel" type="radio" name="idealrent_checkout_hour" /></label>
             </li>
             <?php
             for($i = 6; $i < 20; $i++) {
@@ -326,7 +336,7 @@ class IdealRentCheckoutWidget extends WP_Widget {
         <button>
           <span class="idealrent_price_bubble"></span>
           <label class="value">
-            <span><small>Pris:</small></span><span data-checkout-price="<?php echo $base; ?>" data-price="<?php echo $base; ?>" class="priceholder"><?php echo $price; ?></span>
+            <span><small>Pris:</small></span><span data-checkout-price="<?php echo $price; ?>" data-price="<?php echo $base; ?>" class="priceholder"><?php echo $price; ?></span>
             <span><small>Efter fradrag:</small></span><span class="netpriceholder"><?php echo round($price*.75); ?></span>
           </label>
         </button>
@@ -334,6 +344,8 @@ class IdealRentCheckoutWidget extends WP_Widget {
       <div class="active" id="idealrent_checkout_form_progress_mobile_drop">
         <span>›</span>
       </div>
+      <input type="hidden" value="<?php echo $price; ?>" name="totalprice" id="totalprice" />
+      <input type="hidden" value="<?php echo round($price*.75); ?>" name="totalnetprice" id="totalnetprice" />
     </div>
     <?php
   }
@@ -384,6 +396,13 @@ class IdealRentCheckoutWidget extends WP_Widget {
         <div class="idealrent_checkout_form_section section_4">
           <h2>Hvor skal vi gøre rent?</h2>
           <?php $this->address("full"); ?>
+          <div class="idealrent_checkout_form_element" style="justify-content: space-around">
+            <button data-section="4" class="continue">Fortsæt</button>
+          </div>
+        </div>
+      </div>
+      <div class="idealrent_checkout_form_block">
+        <div class="idealrent_checkout_form_section section_5">
           <h2>Hvor tit skal vi komme forbi?</h2>
           <?php $this->frequency(); ?>
           <h2>Ønsker du nogle extra ydelser?</h2>
@@ -400,7 +419,7 @@ class IdealRentCheckoutWidget extends WP_Widget {
         </div>
       </div>
       <div class="idealrent_checkout_form_block">
-        <div class="idealrent_checkout_form_section section_5">
+        <div class="idealrent_checkout_form_section section_6">
           <div class="payblock">
             <label for="card-element">Kort oplysninger</label>
             <div id="card-element"></div>
@@ -414,6 +433,8 @@ class IdealRentCheckoutWidget extends WP_Widget {
 
             <label for="idealrent_checkout_email">Email</label>
             <input name="idealrent_checkout_email" id="idealrent_checkout_email" required type="email" placeholder="Din email adresse" />
+
+            <h3 style="color: #393">Vi trækker først beløbet når opgaven er udført</h3>
 
             <button class="continue finish" id="submit_booking">Godkend bestilling</button>
             <input type="submit" id="secret_submit" style="display: none" name="idealrent_checkout_complete_submit" />
@@ -454,7 +475,7 @@ class IdealRentCheckoutWidget extends WP_Widget {
     ?>
     <div class="idealrent_checkout_form_element" data-element="entrance">
       <label for="idealrent_checkout_entrance_home"><input value="home" type="radio" id="idealrent_checkout_entrance_home" name="idealrent_checkout_entrance" /><span>Vi er hjemme</span></label>
-      <label for="idealrent_checkout_entrance_doorman"><input value="doorman" type="radio" id="idealrent_checkout_entrance_doorman" name="idealrent_checkout_entrance" /><span>Dørmand</span></label>
+      <label for="idealrent_checkout_entrance_doorman"><input value="doorman" type="radio" id="idealrent_checkout_entrance_doorman" name="idealrent_checkout_entrance" /><span>Aflever nøgle</span></label>
       <label for="idealrent_checkout_entrance_key"><input value="key" type="radio" id="idealrent_checkout_entrance_key" name="idealrent_checkout_entrance" /><span>Skjult nøgle</span></label>
       <label for="idealrent_checkout_entrance_other"><input value="other" type="radio" id="idealrent_checkout_entrance_other" name="idealrent_checkout_entrance" /><span>Andet</span></label>
     </div>
@@ -477,7 +498,7 @@ class IdealRentCheckoutWidget extends WP_Widget {
     $token = $_POST["idealrent_checkout_stripe_token"];
 
     $ch = curl_init("https://api.stripe.com/v1/customers");
-    $data = "description=Konto for {$mail}&source={$token}";
+    $data = "description=Konto for {$mail}&source={$token}&email={$mail}&metadata[Phone]={$phone}&metadata[Name]={$name}&metadata[Email]={$mail}";
     $user = get_option("ir-checkout-stripe-secret-key");
     curl_setopt($ch, CURLOPT_USERPWD, "{$user}:");
     curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -552,7 +573,9 @@ class IdealRentCheckoutWidget extends WP_Widget {
     }
 
     $date = date("d/m/Y", strtotime($_POST["idealrent_checkout_date"]));
-    $time = isset($_POST["idealrent_checkout_hour"]) && is_numeric($_POST["idealrent_checkout_hour"]) ? $_POST["idealrent_checkout_hour"].":00" : "Fleksibel";
+    $flexible = get_option("ir-checkout-flexible-hour-label");
+
+    $time = isset($_POST["idealrent_checkout_hour"]) && is_numeric($_POST["idealrent_checkout_hour"]) ? $_POST["idealrent_checkout_hour"].":00" : ($flexible ?: "Fleksibel (mellem 8-16)");
     $address = $_POST["idealrent_checkout_address_complete"];
 
     $extra = array();
@@ -577,6 +600,8 @@ class IdealRentCheckoutWidget extends WP_Widget {
     }
 
     $info = empty($_POST["idealrent_checkout_wishes"]) ? "" : $_POST["idealrent_checkout_wishes"]."<br/>";
+    $price = $_POST["totalprice"];
+    $netprice = $_POST["totalnetprice"];
 
     $body = "<html><body><h3>Information om booking</h3>
 <br/>
@@ -592,6 +617,9 @@ Ekstra services: {$extra}<br/>
 Husdyr: {$pets}<br/>
 Adgang: {$entrance}<br/>
 <br/>
+Pris: {$price} kr.<br/>
+Efter fradrag: {$netprice} kr.<br/>
+<br/>
 Ekstra information:<br/>
 {$info}<br/>
 Navn: {$name}<br/>
@@ -599,8 +627,6 @@ Email: {$mail}<br/>
 Telefon: {$phone}<br/>
 <br/>
 Stripe customer: {$customerid}
-
-{$result}
 </body></html>";
 
     $headers = array(
@@ -611,7 +637,7 @@ Stripe customer: {$customerid}
     wp_mail($target, "Ny booking modtaget", $body, $headers);
 
     $redir = get_option("ir-checkout-stripe-booking-page");
-    if (strpos($redir, "http://") !== 0) {
+    if (!preg_match("#^https?://#", $redir)) {
       $redir = "/" . trim($redir, " \t\n\r\0\x0B/");
     }
     ob_clean();

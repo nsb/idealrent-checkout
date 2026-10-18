@@ -113,6 +113,8 @@
         }, 300);
         $(".priceholder").text(price);
         $(".netpriceholder").text(netprice);
+        $("#totalprice").val(price);
+        $("#totalnetprice").val(netprice);
       }
     });
 
@@ -157,14 +159,19 @@
       }
     });
 
+    function clearAddress() {
+      $("#idealrent_checkout_address_complete").val("");
+      $(".idealrent_checkout_form_progress button[data-section=4] .value").text("");
+      $("#idealrent_checkout_address").closest(".idealrent_checkout_form_section").find(".continue").removeClass("active");
+    }
+
     $("#idealrent_checkout_address").dawaautocomplete({
+      clear: clearAddress,
       select: function(event, data) {
         if (data.data.postnr < 3000) {
           $("#idealrent_checkout_address_complete").val(data.tekst);
-          $(".idealrent_checkout_form_progress button[data-section=4] .value").html(data.tekst);
-          if ($("[name=idealrent_checkout_entrance]:checked").length) {
-            $(this).closest(".idealrent_checkout_form_section").find(".continue").addClass("active");
-          }
+          $(".idealrent_checkout_form_progress button[data-section=4] .value").text(data.tekst);
+          $(this).closest(".idealrent_checkout_form_section").find(".continue").addClass("active");
         } else {
           $("body").append("<div class='idealrent_checkout_overlay'></div>");
           $("body").append("<div class='idealrent_checkout_zip_error'><div>Vi kan desværre kun servicere området omkring København</div><button>OK</button></div>");
@@ -218,6 +225,10 @@
     $(".idealrent_checkout_form.fullpage_layout button.continue:not(.finish)").click(function(ev) {
 
       var section = $(this).data("section");
+      if (section == 4 && !$("#idealrent_checkout_address_complete").val()) {
+        ev.preventDefault();
+        return;
+      }
       $(".idealrent_checkout_form_progress button[data-section="+section+"]").parent().addClass("complete").removeClass("active");
       $(".idealrent_checkout_form_progress button[data-section="+(section + 1)+"]").parent().addClass("active");
 
@@ -236,14 +247,3 @@
 
   });
 })(jQuery);
-// this is the fix
-jQuery(document).ready(function( $ ){
-$('.idealrent_checkout_form_dropdown').click(function(){
-$(this).next().toggleClass('dd-active');
-});
-$('label').click(function(){
- $('.dd-active').each(function(){
-  $(this).removeClass('dd-active');
-});
-});
-});
