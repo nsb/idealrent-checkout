@@ -10,6 +10,11 @@ class IdealRentCheckoutWidget extends WP_Widget {
   }
 
   public function widget($args, $instance) {
+    $instance = wp_parse_args((array)$instance, array(
+      "layout" => 0,
+      "action" => ""
+    ));
+
     IdealRentCheckout::enqueue_scripts();
 
     $action = get_option("ir-checkout-stripe-booking-form-page", "");
